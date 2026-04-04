@@ -26,10 +26,6 @@ namespace Bookkeeping.Models
         public string Image1 { get; set; }
         [DisplayName("圖檔2")]
         public string Image2 { get; set; }
-        //[DisplayName("圖片1")]
-        //public Image ImageIcon1 { get; set; }
-        //[DisplayName("圖片2")]
-        //public Image ImageIcon2 { get; set; }
         public RecordModel(string date, string price, string type, string detail, string target, string payment, string image1, string image2)
         {
             this.Date = date;
@@ -40,8 +36,6 @@ namespace Bookkeeping.Models
             this.PaymentMethods = payment;
             this.Image1 = image1;
             this.Image2 = image2;
-            //this.ImageIcon1 = ImageIcon1;
-            //this.ImageIcon2 = ImageIcon2;
         }
 
 

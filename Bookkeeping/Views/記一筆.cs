@@ -1,5 +1,6 @@
 ﻿using Bookkeeping.Components;
 using Bookkeeping.Models;
+using Bookkeeping.Utility;
 using CSVlibrary;
 using System;
 using System.Collections.Generic;
@@ -26,9 +27,9 @@ namespace Bookkeeping.Views
             comboBox3.DataSource = DataModel.Target;
             comboBox4.DataSource = DataModel.PaymentMethods;
 
-            pictureBox1.Image = Image.FromFile(@"C:\Users\user\Desktop\上傳圖片.jpg");
+            pictureBox1.Image = Image.FromFile(@"C:\Users\user\Desktop\CsharpClass\程式圖片\上傳圖片.jpg");
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
-            pictureBox2.Image = Image.FromFile(@"C:\Users\user\Desktop\上傳圖片.jpg");
+            pictureBox2.Image = Image.FromFile(@"C:\Users\user\Desktop\CsharpClass\程式圖片\上傳圖片.jpg");
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
@@ -40,14 +41,25 @@ namespace Bookkeeping.Views
 
         private void button1_Click(object sender, EventArgs e)
         {
-            string pictureBox1data = $"{Guid.NewGuid()}.jpg";
-            pictureBox1.Image.Save(pictureBox1data);
-            string pictureBox2data = $"{Guid.NewGuid()}.jpg";
-            pictureBox2.Image.Save(pictureBox2data);
-            CSVHelper.Write<RecordModel>("filePath.csv", new RecordModel(dateTimePicker1.Value.ToString("yyyy-MM-dd"), textBox1.Text, comboBox1.Text, comboBox2.Text, comboBox3.Text, comboBox4.Text, pictureBox1data, pictureBox2data));
+            RecordModel model = new RecordModel(dateTimePicker1.Value.ToString("yyyy-MM-dd"), textBox1.Text,
+                    comboBox1.Text, comboBox2.Text, comboBox3.Text, comboBox4.Text, "image1", "image2");
 
+            this.DebounceTime((x) =>
+            {
+                if (!Directory.Exists($@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}"))
+                {
+                    Directory.CreateDirectory($@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}");
+                }
+                model.Image1 = pictureBox1.Image.Compression($@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}\small_{Guid.NewGuid()}.jpg");
+                pictureBox1.Image.Dispose();
+                model.Image2 = pictureBox2.Image.Compression($@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}\small_{Guid.NewGuid()}.jpg");
+                pictureBox2.Image.Dispose();
+                CSVHelper.Write<RecordModel>($@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}\Data.csv", x);
+
+                pictureBox1.Image = Image.FromFile(@"C:\Users\user\Desktop\CsharpClass\程式圖片\上傳圖片.jpg");
+                pictureBox2.Image = Image.FromFile(@"C:\Users\user\Desktop\CsharpClass\程式圖片\上傳圖片.jpg");
+            }, model, 500);
         }
-
         private void Image_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -55,6 +67,7 @@ namespace Bookkeeping.Views
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 PictureBox pictureBox = (PictureBox)sender;
+                pictureBox.Image.Dispose();
                 pictureBox.Image = Image.FromFile(openFileDialog.FileName);
             }
         }

@@ -21,8 +21,8 @@ namespace Bookkeeping.Components
             InitializeComponent();
             this.SizeChanged += Navbar_SizeChanged;
             var Viewstypes = Assembly.GetExecutingAssembly().DefinedTypes;
-            var Viewslist = Viewstypes.Where(x => x.BaseType == typeof(Form)).ToList();
-
+            var Viewslist = Viewstypes.Where(x => x.BaseType == typeof(Form))
+                .Where(y => y.Namespace == "Bookkeeping.Views").ToList();
             foreach (var view in Viewslist)
             {
                 Button button = new Button();
