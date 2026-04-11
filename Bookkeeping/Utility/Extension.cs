@@ -38,7 +38,7 @@ namespace Bookkeeping.Utility
                 action.GetType().GetMethod("Invoke").Invoke(action, new object[] { number });
             }));
         }
-        public static string Compression(this Image image, string filename)
+        public static void Compression(this Image image, string filename)
         {
             using (Bitmap map = new Bitmap(image))
             {
@@ -55,7 +55,6 @@ namespace Bookkeeping.Utility
                 {
                     graphics.DrawImage(map, 0, 0, 40, 40);
                     resizedImage.Save(filename, ImageFormat.Jpeg);
-                    return filename;
                 }
             }
 

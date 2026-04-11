@@ -49,6 +49,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\ComboBoxColumnAttribute.cs" />
+    <Compile Include="Attributes\ImageColumnAttribute.cs" />
+    <Compile Include="Attributes\TextBoxColumnAttribute.cs" />
     <Compile Include="Components\Navbar.cs">
       <SubType>UserControl</SubType>
     </Compile>

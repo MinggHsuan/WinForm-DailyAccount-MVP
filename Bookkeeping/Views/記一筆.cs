@@ -50,9 +50,11 @@ namespace Bookkeeping.Views
                 {
                     Directory.CreateDirectory($@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}");
                 }
-                model.Image1 = pictureBox1.Image.Compression($@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}\small_{Guid.NewGuid()}.jpg");
+                model.Image1 = $@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}\small_{Guid.NewGuid()}.jpg";
+                pictureBox1.Image.Compression(model.Image1);
                 pictureBox1.Image.Dispose();
-                model.Image2 = pictureBox2.Image.Compression($@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}\small_{Guid.NewGuid()}.jpg");
+                model.Image2 = $@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}\small_{Guid.NewGuid()}.jpg";
+                pictureBox2.Image.Compression(model.Image2);
                 pictureBox2.Image.Dispose();
                 CSVHelper.Write<RecordModel>($@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}\Data.csv", x);
 
