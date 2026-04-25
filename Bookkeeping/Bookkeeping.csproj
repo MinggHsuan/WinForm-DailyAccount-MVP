@@ -65,7 +65,11 @@
       <DependentUpon>ImageForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\DataModel.cs" />
+    <Compile Include="Models\DataModelDTO.cs" />
+    <Compile Include="Models\Record.cs" />
     <Compile Include="Models\RecordModel.cs" />
+    <Compile Include="Repository\IRecordRepository.cs" />
+    <Compile Include="Repository\Repository.cs" />
     <Compile Include="SignletonForm.cs" />
     <Compile Include="Utility\Extension.cs" />
     <Compile Include="Views\圖表分析.cs">
@@ -134,5 +138,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

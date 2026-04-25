@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bookkeeping.Repository;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bookkeeping.Models
 {
-    internal class DataModel
+    internal class DataModel : IDataModelRepository
     {
         public static string[] Type = { "食", "衣", "住", "行" };
 
@@ -22,5 +23,15 @@ namespace Bookkeeping.Models
         };
         public static string[] Target = { "自用", "爸爸", "媽媽", "朋友", "女朋友" };
         public static string[] PaymentMethods = { "現金", "信用卡", "行動支付" };
+
+        public DataModelDTO GetDataSource()
+        {
+            return new DataModelDTO(Type, Detail[Type[0]], Target, PaymentMethods);
+        }
+
+        public List<string> GetDetail(string type)
+        {
+            return Detail[type];
+        }
     }
 }
