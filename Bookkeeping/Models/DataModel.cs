@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bookkeeping.Models
 {
-    internal class DataModel : IDataModelRepository
+    public class DataModel : IDataModelRepository
     {
         public static string[] Type = { "食", "衣", "住", "行" };
 

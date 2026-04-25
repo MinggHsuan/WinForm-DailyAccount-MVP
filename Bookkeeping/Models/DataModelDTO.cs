@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bookkeeping.Models
 {
-    internal class DataModelDTO
+    public class DataModelDTO
     {
         public string[] Type;
         public List<string> Detail;

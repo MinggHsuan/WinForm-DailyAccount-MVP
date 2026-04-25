@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bookkeeping.Repository
 {
-    internal interface IRecordRepository
+    public interface IRecordRepository
     {
         void CreateRecord(Record record);
         void DeleteRecord(Record record);

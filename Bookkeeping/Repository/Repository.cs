@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Bookkeeping.Repository
 {
-    internal class Repository : IRecordRepository
+    public class Repository : IRecordRepository
     {
         private string filename = $@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase";
         public void CreateRecord(Record record)

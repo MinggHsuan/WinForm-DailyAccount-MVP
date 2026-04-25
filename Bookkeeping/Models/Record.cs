@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bookkeeping.Models
 {
-    internal class Record
+    public class Record
     {
         public string Date { get; set; }
         public string Price { get; set; }
