@@ -55,7 +55,17 @@ namespace Bookkeeping.Views
                 directoryPath = Path.Combine(directoryPath, "Data.csv");
                 recordModels.AddRange(CSVHelper.Read<RecordModel>(directoryPath));
             }
-
+            for (int i = 0; i <= timeSpan.Days; i++)
+            {
+                DateTime currentDay = startTimePicker.Value.AddDays(i);
+                string directoryPath = Path.Combine(filename, currentDay.ToString("yyyy-MM-dd"));
+                if (!Directory.Exists(directoryPath))
+                {
+                    continue;
+                }
+                directoryPath = Path.Combine(directoryPath, "Data.csv");
+                recordModels.AddRange(CSVHelper.Read<RecordModel>(directoryPath));
+            }
             this.DebounceTime((x) =>
             {
                 RefreshView(x);

@@ -35,9 +35,9 @@ namespace Bookkeeping.Repository
         }
         public void UpdateRecord(Record record)
         {
-            List<Record> records = GetRecords(DateTime.Parse(record.Date));
-            Record removeRecord = records.First(x => x.Image1 == record.Image1);
-            records.Remove(removeRecord);
+            //List<Record> records = GetRecords(DateTime.Parse(record.Date));
+            //Record removeRecord = records.First(x => x.Image1 == record.Image1);
+            //records.Remove(removeRecord);
             string directoryPath = Path.Combine(filename, record.Date, "Data.csv");
             File.Delete(directoryPath);
             CSVHelper.Write<Record>(directoryPath, record);
