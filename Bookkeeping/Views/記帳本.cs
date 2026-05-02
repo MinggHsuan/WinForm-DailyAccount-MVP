@@ -23,15 +23,14 @@ using Image = System.Drawing.Image;
 
 namespace Bookkeeping.Views
 {
-    public partial class 記帳本 : Form, QueryContract.IView
+    public partial class 記帳本 : Form
     {
         // DaaGridView構成
         // DataGridViewColumn(欄) : 用反射抓取所有公開屬性,將每一個公開屬性都創建: DataGridViewTextBoxColumn
         // DataGridViewRow(列): 對list跑for迴圈創建每一個DataGridViewRow
         // DAtaGRidViewCell(格) : 對list當中的每一個item都創建一個DaaGridViewCel
-        private QueryContract.IPresenter presenter;
+
         public List<RecordModel> recordModels;
-        public List<Record> records;
         public string filename = $@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase";
         public string garbagePath = @"C:\Users\user\Desktop\CsharpClass\程式圖片\垃圾桶.jpg";
         public 記帳本()
@@ -40,39 +39,31 @@ namespace Bookkeeping.Views
             dataGridView1.CellMouseDoubleClick += DataGridView1_CellMouseDoubleClick;
             dataGridView1.CurrentCellDirtyStateChanged += DataGridView1_CurrentCellDirtyStateChanged;
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            presenter = new QueryPresenter(this);
+
         }
-        public void onGetResult(List<Record> records)
-        {
-            this.DebounceTime((x) =>
-            {
-                RefreshView(x);
-            }, records, 500);
-        }
+
 
         private void button1_Click(object sender, EventArgs e)
         {
-            records = new List<Record>();
-            presenter.getResult(startTimePicker.Value.Date, endTimePicker.Value.Date);
-            //recordModels = new List<RecordModel>();
-            //TimeSpan timeSpan = endTimePicker.Value.Date - startTimePicker.Value.Date;
+            recordModels = new List<RecordModel>();
+            TimeSpan timeSpan = endTimePicker.Value.Date - startTimePicker.Value.Date;
 
-            //for (int i = 0; i <= timeSpan.Days; i++)
-            //{
-            //    DateTime currentDay = startTimePicker.Value.AddDays(i);
-            //    string directoryPath = Path.Combine(filename, currentDay.ToString("yyyy-MM-dd"));
-            //    if (!Directory.Exists(directoryPath))
-            //    {
-            //        continue;
-            //    }
-            //    directoryPath = Path.Combine(directoryPath, "Data.csv");
-            //    recordModels.AddRange(CSVHelper.Read<RecordModel>(directoryPath));
-            //}
+            for (int i = 0; i <= timeSpan.Days; i++)
+            {
+                DateTime currentDay = startTimePicker.Value.AddDays(i);
+                string directoryPath = Path.Combine(filename, currentDay.ToString("yyyy-MM-dd"));
+                if (!Directory.Exists(directoryPath))
+                {
+                    continue;
+                }
+                directoryPath = Path.Combine(directoryPath, "Data.csv");
+                recordModels.AddRange(CSVHelper.Read<RecordModel>(directoryPath));
+            }
 
-            //this.DebounceTime((x) =>
-            //{
-            //    RefreshView(x);
-            //}, recordModels, 500);
+            this.DebounceTime((x) =>
+            {
+                RefreshView(x);
+            }, recordModels, 500);
         }
 
         private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
@@ -118,8 +109,8 @@ namespace Bookkeeping.Views
             if (column.Tag.ToString() == "Type")
             {
                 DataGridViewComboBoxCell cell = (DataGridViewComboBoxCell)dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns["Detail"].Index + 1];
-                cell.DataSource = DataModel.Detail[dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[column.Tag.ToString()].Index + 1].Value.ToString()];
-                cell.Value = DataModel.Detail[dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[column.Tag.ToString()].Index + 1].Value.ToString()][0];
+                cell.DataSource = DataModel.Details[dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[column.Tag.ToString()].Index + 1].Value.ToString()];
+                cell.Value = DataModel.Details[dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[column.Tag.ToString()].Index + 1].Value.ToString()][0];
             }
             string directoryRemovePath = Path.Combine(filename, removeDate, "Data.csv");
             File.Delete(directoryRemovePath);
@@ -275,7 +266,7 @@ namespace Bookkeeping.Views
                     {
                         if (x.OwningColumn.Tag.ToString() == "Detail")
                         {
-                            x.DataSource = DataModel.Detail[dataGridView1.Rows[j].Cells[dataGridView1.Columns[x.OwningColumn.Tag.ToString()].Index - 1].Value.ToString()];
+                            x.DataSource = DataModel.Details[dataGridView1.Rows[j].Cells[dataGridView1.Columns[x.OwningColumn.Tag.ToString()].Index - 1].Value.ToString()];
                             x.Value = dataGridView1.Rows[j].Cells[dataGridView1.Columns[x.OwningColumn.Tag.ToString()].Index].Value;
                         }
                         dataGridView1.Rows[j].Cells[dataGridView1.Columns[x.OwningColumn.Tag.ToString()].Index + 1].Value = dataGridView1.Rows[j].Cells[dataGridView1.Columns[x.OwningColumn.Tag.ToString()].Index].Value;

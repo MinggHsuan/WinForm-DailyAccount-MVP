@@ -58,7 +58,7 @@
     <Compile Include="Components\Navbar.Designer.cs">
       <DependentUpon>Navbar.cs</DependentUpon>
     </Compile>
-    <Compile Include="Contract\QueryContract.cs" />
+    <Compile Include="Contract\AddRecordContract.cs" />
     <Compile Include="ImageForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -66,14 +66,17 @@
       <DependentUpon>ImageForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\DataModel.cs" />
-    <Compile Include="Models\DataModelDTO.cs" />
+    <Compile Include="Models\DTOs\DataModelDTO.cs" />
+    <Compile Include="Models\DTOs\RecordDTO.cs" />
     <Compile Include="Models\Record.cs" />
     <Compile Include="Models\RecordModel.cs" />
-    <Compile Include="Presenter\QueryPresenter.cs" />
+    <Compile Include="Presenter\AddRecordPresenter.cs" />
+    <Compile Include="Repository\IDataModelRepository.cs" />
     <Compile Include="Repository\IRecordRepository.cs" />
-    <Compile Include="Repository\Repository.cs" />
+    <Compile Include="Repository\IRepository.cs" />
     <Compile Include="SignletonForm.cs" />
     <Compile Include="Utility\Extension.cs" />
+    <Compile Include="Utility\ImageCompress.cs" />
     <Compile Include="Views\圖表分析.cs">
       <SubType>Form</SubType>
     </Compile>

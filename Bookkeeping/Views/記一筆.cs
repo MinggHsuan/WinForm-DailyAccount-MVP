@@ -1,5 +1,8 @@
 ﻿using Bookkeeping.Components;
+using Bookkeeping.Contract;
 using Bookkeeping.Models;
+using Bookkeeping.Models.DTOs;
+using Bookkeeping.Presenter;
 using Bookkeeping.Utility;
 using CSVlibrary;
 using System;
@@ -13,54 +16,56 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Bookkeeping.Contract.AddRecordContract;
 
 namespace Bookkeeping.Views
 {
-    public partial class 記一筆 : Form
+    public partial class 記一筆 : Form, AddRecordContract.IView
     {
+        private AddRecordContract.IPresenter presenter;
+        private string fileName = @"C:\Users\user\Desktop\CsharpClass\程式圖片\上傳圖片.jpg";
         public 記一筆()
         {
             InitializeComponent();
-            comboBox1.DataSource = DataModel.Type;
+            presenter = new AddRecordPresenter(this);
+            presenter.GetDataSource();
             comboBox1.SelectedIndexChanged += ComboBox1_SelectedIndexChanged;
-            comboBox2.DataSource = DataModel.Detail[DataModel.Type[0]];
-            comboBox3.DataSource = DataModel.Target;
-            comboBox4.DataSource = DataModel.PaymentMethods;
 
-            pictureBox1.Image = Image.FromFile(@"C:\Users\user\Desktop\CsharpClass\程式圖片\上傳圖片.jpg");
+            pictureBox1.Image = Image.FromFile(fileName);
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
-            pictureBox2.Image = Image.FromFile(@"C:\Users\user\Desktop\CsharpClass\程式圖片\上傳圖片.jpg");
+            pictureBox2.Image = Image.FromFile(fileName);
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
         }
-
+        public void OnGetResult(DataModelDTO records)
+        {
+            comboBox1.DataSource = records.Type;
+            comboBox2.DataSource = records.Detail;
+            comboBox3.DataSource = records.Target;
+            comboBox4.DataSource = records.PaymentMethods;
+        }
         private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             ComboBox str = (ComboBox)sender;
-            comboBox2.DataSource = DataModel.Detail[str.Text];
+            presenter.GetDetail(str.Text);
         }
-
+        public void OnDetailResult(List<string> Detail)
+        {
+            comboBox2.DataSource = Detail;
+        }
         private void button1_Click(object sender, EventArgs e)
         {
-            RecordModel model = new RecordModel(dateTimePicker1.Value.ToString("yyyy-MM-dd"), textBox1.Text,
-                    comboBox1.Text, comboBox2.Text, comboBox3.Text, comboBox4.Text, "image1", "image2");
-
-            this.DebounceTime((x) =>
+            this.DebounceTime(() =>
             {
-                if (!Directory.Exists($@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}"))
-                {
-                    Directory.CreateDirectory($@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}");
-                }
-                model.Image1 = $@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}\small_{Guid.NewGuid()}.jpg";
-                pictureBox1.Image.Compression(model.Image1);
-                pictureBox1.Image.Dispose();
-                model.Image2 = $@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}\small_{Guid.NewGuid()}.jpg";
-                pictureBox2.Image.Compression(model.Image2);
-                pictureBox2.Image.Dispose();
-                CSVHelper.Write<RecordModel>($@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase\{dateTimePicker1.Value.ToString("yyyy-MM-dd")}\Data.csv", x);
-
-                pictureBox1.Image = Image.FromFile(@"C:\Users\user\Desktop\CsharpClass\程式圖片\上傳圖片.jpg");
-                pictureBox2.Image = Image.FromFile(@"C:\Users\user\Desktop\CsharpClass\程式圖片\上傳圖片.jpg");
-            }, model, 500);
+                presenter.AddRecord(new RecordDTO(dateTimePicker1.Value.ToString("yyyy-MM-dd"), textBox1.Text,
+                    comboBox1.Text, comboBox2.Text, comboBox3.Text, comboBox4.Text, pictureBox1.Image, pictureBox2.Image));
+            }, 500);
+        }
+        public void ReSetUI()
+        {
+            pictureBox1.Image.Dispose();
+            pictureBox2.Image.Dispose();
+            pictureBox1.Image = Image.FromFile(fileName);
+            pictureBox2.Image = Image.FromFile(fileName);
         }
         private void Image_Click(object sender, EventArgs e)
         {
@@ -73,5 +78,7 @@ namespace Bookkeeping.Views
                 pictureBox.Image = Image.FromFile(openFileDialog.FileName);
             }
         }
+
+
     }
 }

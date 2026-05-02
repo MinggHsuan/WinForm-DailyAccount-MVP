@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bookkeeping.Models
+namespace Bookkeeping.Models.DTOs
 {
-    public class Record
+    public class RecordDTO
     {
         public string Date { get; set; }
         public string Price { get; set; }
@@ -14,10 +15,10 @@ namespace Bookkeeping.Models
         public string Detail { get; set; }
         public string Target { get; set; }
         public string PaymentMethods { get; set; }
-        public string Image1 { get; set; }
-        public string Image2 { get; set; }
+        public Image Image1 { get; set; }
+        public Image Image2 { get; set; }
 
-        public Record(string date, string price, string type, string detail, string target, string payment, string image1, string image2)
+        public RecordDTO(string date, string price, string type, string detail, string target, string payment, Image image1, Image image2)
         {
             this.Date = date;
             this.Price = price;
@@ -27,9 +28,6 @@ namespace Bookkeeping.Models
             this.PaymentMethods = payment;
             this.Image1 = image1;
             this.Image2 = image2;
-        }
-        public Record()
-        {
         }
     }
 }

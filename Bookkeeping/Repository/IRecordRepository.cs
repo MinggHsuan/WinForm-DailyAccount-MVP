@@ -16,9 +16,4 @@ namespace Bookkeeping.Repository
         List<Record> GetRecords(DateTime date);
 
     }
-    internal interface IDataModelRepository
-    {
-        DataModelDTO GetDataSource();
-        List<string> GetDetail(string type);
-    }
 }

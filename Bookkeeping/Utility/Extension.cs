@@ -13,7 +13,7 @@ using System.Windows.Forms;
 
 namespace Bookkeeping.Utility
 {
-    internal static class Extension
+    public static class Extension
     {
         private static System.Threading.Timer timer;
         private static Form mainForm;
@@ -31,45 +31,24 @@ namespace Bookkeeping.Utility
             }
             timer.Change(delay, -1);
         }
+        public static void DebounceTime(this Form form, Action callback, int delay)
+        {
+            action = callback;
+            mainForm = form;
+            TimerCallback doSomething = new TimerCallback(DoSomething);
+            if (timer == null)
+            {
+                timer = new System.Threading.Timer(doSomething, null, delay, -1);
+            }
+            timer.Change(delay, -1);
+        }
         private static void DoSomething(object t)
         {
             mainForm.Invoke(new Action(() =>
             {
-                action.GetType().GetMethod("Invoke").Invoke(action, new object[] { number });
+                action.GetType().GetMethod("Invoke").Invoke(action, null);
             }));
         }
-        public static void Compression(this Image image, string filename)
-        {
-            using (Bitmap map = new Bitmap(image))
-            {
-                ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
-                System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
-                EncoderParameters myEncoderParameters = new EncoderParameters(1);
-                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 15L);
-                myEncoderParameters.Param[0] = myEncoderParameter;
-                string[] newFileName = filename.Split(new string[] { "small_" }, 0);
-                map.Save(newFileName[0] + newFileName[1], jpgEncoder, myEncoderParameters);
 
-                Bitmap resizedImage = new Bitmap(40, 40);
-                using (Graphics graphics = Graphics.FromImage(resizedImage))
-                {
-                    graphics.DrawImage(map, 0, 0, 40, 40);
-                    resizedImage.Save(filename, ImageFormat.Jpeg);
-                }
-            }
-
-        }
-        private static ImageCodecInfo GetEncoder(ImageFormat format)
-        {
-            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
-            foreach (ImageCodecInfo codec in codecs)
-            {
-                if (codec.FormatID == format.Guid)
-                {
-                    return codec;
-                }
-            }
-            return null;
-        }
     }
 }
