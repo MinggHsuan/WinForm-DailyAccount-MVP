@@ -22,7 +22,7 @@ namespace Bookkeeping.Models
         public string Type { get; set; }
         [DisplayName("細項")]
         [ComboBoxColumn]
-        public string Detail { get; set; }
+        public string Details { get; set; }
         [DisplayName("對象")]
         [ComboBoxColumn]
 
@@ -42,7 +42,7 @@ namespace Bookkeeping.Models
             this.Date = date;
             this.Price = price;
             this.Type = type;
-            this.Detail = detail;
+            this.Details = detail;
             this.Target = target;
             this.PaymentMethods = payment;
             this.Image1 = image1;

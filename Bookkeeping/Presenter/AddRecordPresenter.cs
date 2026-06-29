@@ -5,6 +5,7 @@ using Bookkeeping.Repository;
 using Bookkeeping.Utility;
 using System;
 using System.Collections.Generic;
+using System.Deployment.Application;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -30,7 +31,10 @@ namespace Bookkeeping.Presenter
         public void GetDataSource()
         {
             var records = dataModelRepository.GetDataSource();
-            view.OnGetResult(new DataModelDTO(records.Type, records.Detail[records.Type[0]], records.Target, records.PaymentMethods));
+            var detail = records.Detail[records.Type[0]];
+            var map = Mapper.Map<DataModel, DataModelDTO>(records);
+            map.Detail = detail;
+            view.OnGetResult(map);
         }
 
         public void GetDetail(string type)
@@ -60,7 +64,12 @@ namespace Bookkeeping.Presenter
             Bitmap resizeImage2 = ImageCompress.Compress(recordDTO.Image2, 40, 40);
             resizeImage2.Save(Imagefile2);
 
-            recordRepository.CreateRecord(new Record(recordDTO.Date, recordDTO.Price, recordDTO.Type, recordDTO.Detail, recordDTO.Target, recordDTO.PaymentMethods, Imagefile1, Imagefile2));
+            var record = Mapper.Map<RecordDTO, Record>(recordDTO, cfg =>
+            {
+                cfg.ForMember(x => x.Image1, y => y.MapFrom(z => Imagefile1))
+                   .ForMember(x => x.Image2, y => y.MapFrom(z => Imagefile2));
+            });
+            recordRepository.CreateRecord(record);
             view.ReSetUI();
         }
 

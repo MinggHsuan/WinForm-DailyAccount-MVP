@@ -12,6 +12,7 @@ namespace Bookkeeping.Repository
         void CreateRecord(Record record);
         void DeleteRecord(Record record);
         void UpdateRecord(Record record);
+        Record UpdateAndMoveRecord(string beforeDate, Record record);
         List<Record> GetRecords(DateTime start, DateTime end);
         List<Record> GetRecords(DateTime date);
 

@@ -1,6 +1,7 @@
 ﻿using Bookkeeping.Attributes;
 using Bookkeeping.Contract;
 using Bookkeeping.Models;
+using Bookkeeping.Models.DTOs;
 using Bookkeeping.Presenter;
 using Bookkeeping.Utility;
 using CSVlibrary;
@@ -23,19 +24,20 @@ using Image = System.Drawing.Image;
 
 namespace Bookkeeping.Views
 {
-    public partial class 記帳本 : Form
+    public partial class 記帳本 : Form, QueryContract.IView
     {
         // DaaGridView構成
         // DataGridViewColumn(欄) : 用反射抓取所有公開屬性,將每一個公開屬性都創建: DataGridViewTextBoxColumn
         // DataGridViewRow(列): 對list跑for迴圈創建每一個DataGridViewRow
         // DAtaGRidViewCell(格) : 對list當中的每一個item都創建一個DaaGridViewCel
-
+        private QueryContract.IPresenter presenter;
         public List<RecordModel> recordModels;
-        public string filename = $@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase";
+        //public string filename = $@"C:\Users\user\Desktop\CsharpClass\BookkeepingDataBase";
         public string garbagePath = @"C:\Users\user\Desktop\CsharpClass\程式圖片\垃圾桶.jpg";
         public 記帳本()
         {
             InitializeComponent();
+            presenter = new QueryPresenter(this);
             dataGridView1.CellMouseDoubleClick += DataGridView1_CellMouseDoubleClick;
             dataGridView1.CurrentCellDirtyStateChanged += DataGridView1_CurrentCellDirtyStateChanged;
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -46,101 +48,72 @@ namespace Bookkeeping.Views
         private void button1_Click(object sender, EventArgs e)
         {
             recordModels = new List<RecordModel>();
-            TimeSpan timeSpan = endTimePicker.Value.Date - startTimePicker.Value.Date;
-
-            for (int i = 0; i <= timeSpan.Days; i++)
-            {
-                DateTime currentDay = startTimePicker.Value.AddDays(i);
-                string directoryPath = Path.Combine(filename, currentDay.ToString("yyyy-MM-dd"));
-                if (!Directory.Exists(directoryPath))
-                {
-                    continue;
-                }
-                directoryPath = Path.Combine(directoryPath, "Data.csv");
-                recordModels.AddRange(CSVHelper.Read<RecordModel>(directoryPath));
-            }
-
-            this.DebounceTime((x) =>
-            {
-                RefreshView(x);
-            }, recordModels, 500);
+            presenter.GetData(startTimePicker.Value.Date, endTimePicker.Value.Date);
         }
-
+        public void OnGetModelResult(List<RecordModel> recordModels)
+        {
+            this.DebounceTime(() =>
+            {
+                this.recordModels = recordModels;
+                RefreshView(recordModels);
+            }, 500);
+        }
         private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             var column = dataGridView1.Columns[e.ColumnIndex];
+            var UpdateData = recordModels[e.RowIndex];
             if (column.Tag == null)
             {
                 return;
             }
-            string removeDate = dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns["Date"].Index].Value.ToString();
+            string Date = dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns["Date"].Index].Value.ToString();
             if (column.Tag.ToString() == "Date")
             {
-                removeDate = dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[column.Tag.ToString()].Index + 1].Value.ToString();
-                string newDate = dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[column.Tag.ToString()].Index].Value.ToString();
-                string directoryNewPath = Path.Combine(filename, newDate);
-                if (!Directory.Exists(directoryNewPath))
+                Date = dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[column.Tag.ToString()].Index + 1].Value.ToString();
+                if (Date == UpdateData.Date)
                 {
-                    Directory.CreateDirectory(directoryNewPath);
+                    return;
                 }
-
-                dataGridView1.Rows[e.RowIndex].Cells.OfType<DataGridViewImageCell>()
-                   .Where(cell => cell.OwningColumn.Tag.ToString() != "刪除")
-                   .ToList()
-                   .ForEach(image =>
-                   {
-                       string[] small_SourceFileName = dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[image.OwningColumn.Tag.ToString()].Index].Value.ToString().Split(new string[] { $"{removeDate}" }, 0);
-                       string small_DestFileName = $"{small_SourceFileName[0]}{newDate}{small_SourceFileName[1]}";
-                       File.Move(dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[image.OwningColumn.Tag.ToString()].Index].Value.ToString(), small_DestFileName);
-
-                       string[] big_SourceFileName = dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[image.OwningColumn.Tag.ToString()].Index].Value.ToString().Split(new string[] { "small_" }, 0);
-                       string[] big_DestFileName = small_DestFileName.Split(new string[] { "small_" }, 0);
-                       File.Move(big_SourceFileName[0] + big_SourceFileName[1], big_DestFileName[0] + big_DestFileName[1]);
-                       dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[image.OwningColumn.Tag.ToString()].Index].Value = small_DestFileName;
-                   });
-
-                directoryNewPath = Path.Combine(directoryNewPath, "Data.csv");
-                File.Delete(directoryNewPath);
-                CSVHelper.Write<RecordModel>(directoryNewPath, recordModels.Where(x => x.Date == newDate).ToList());
-                //recordModels.RemoveAt(e.RowIndex);
-                //dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[column.Tag.ToString()].Index + 1].Value = newDate;
-
+                recordModels.Remove(UpdateData);
+                presenter.UpdateAndMoveData(Date, Mapper.Map<RecordModel, AccountBookDTO>(UpdateData));
+                //presenter.UpdateAndMoveData(Date, new AccountBookDTO(UpdateData.Date, UpdateData.Price, UpdateData.Type, UpdateData.Details, UpdateData.Target, UpdateData.PaymentMethods, UpdateData.Image1, UpdateData.Image2));
+                return;
             }
             if (column.Tag.ToString() == "Type")
             {
-                DataGridViewComboBoxCell cell = (DataGridViewComboBoxCell)dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns["Detail"].Index + 1];
+                DataGridViewComboBoxCell cell = (DataGridViewComboBoxCell)dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns["Details"].Index + 1];
                 cell.DataSource = DataModel.Details[dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[column.Tag.ToString()].Index + 1].Value.ToString()];
                 cell.Value = DataModel.Details[dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns[column.Tag.ToString()].Index + 1].Value.ToString()][0];
             }
-            string directoryRemovePath = Path.Combine(filename, removeDate, "Data.csv");
-            File.Delete(directoryRemovePath);
-            CSVHelper.Write<RecordModel>(directoryRemovePath, recordModels.Where(x => x.Date == removeDate).ToList());
+            presenter.UpdateData(Mapper.Map<RecordModel, AccountBookDTO>(UpdateData));
+
+
+        }
+        public void OnUpdate()
+        {
             RefreshView(recordModels);
         }
-
+        public void OnMoveAndUpdate(RecordModel recordModel)
+        {
+            RefreshView(recordModels);
+            recordModels.Add(recordModel);
+            recordModels.OrderBy(x => x.Date);
+        }
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             var column = dataGridView1.Columns[e.ColumnIndex];
             if (column.Tag.ToString() == "刪除" && e.RowIndex != -1)
             {
-                string removeDate = dataGridView1.Rows[e.RowIndex].Cells[dataGridView1.Columns["Date"].Index].Value.ToString();
-                dataGridView1.Rows[e.RowIndex].Cells.OfType<DataGridViewImageCell>()
-                    .Where(cell => cell.Tag != null)
-                    .ToList()
-                    .ForEach(image =>
-                    {
-                        File.Delete(image.Tag.ToString());
-                        string[] newFileName = image.Tag.ToString().Split(new string[] { "small_" }, 0);
-                        File.Delete(newFileName[0] + newFileName[1]);
-                    });
-                string directoryRemovePath = Path.Combine(filename, removeDate, "Data.csv");
-                File.Delete(directoryRemovePath);
-                recordModels.RemoveAt(e.RowIndex);
-                CSVHelper.Write<RecordModel>(directoryRemovePath, recordModels.Where(x => x.Date == removeDate).ToList());
-                RefreshView(recordModels);
+                var removeData = recordModels[e.RowIndex];
+                recordModels.Remove(removeData);
+                presenter.RemoveData(Mapper.Map<RecordModel, AccountBookDTO>(removeData));
+                //presenter.RemoveData(new AccountBookDTO(removeData.Date, removeData.Price, removeData.Type, removeData.Details, removeData.Target, removeData.PaymentMethods, removeData.Image1, removeData.Image2));
             }
         }
-
+        public void OnRemove()
+        {
+            RefreshView(recordModels);
+        }
         private void DataGridView1_CurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
             DataGridViewColumn column = dataGridView1.Columns[dataGridView1.CurrentCell.ColumnIndex];
@@ -218,9 +191,9 @@ namespace Bookkeeping.Views
                     ComboBoxColumn.HeaderText = $"{headerText}選單";
                     ComboBoxColumn.Name = $"{prop.Name}_ComboBox";
                     ComboBoxColumn.Tag = prop.Name;
-                    if (prop.Name != "Detail")
+                    if (prop.Name != "Details")
                     {
-                        ComboBoxColumn.DataSource = dataModels.FirstOrDefault(x => x.Name == prop.Name).GetValue(null);
+                        ComboBoxColumn.DataSource = dataModels.FirstOrDefault(x => x.Name == prop.Name).GetValue(new DataModel());
                     }
                     ComboBoxColumn.DataPropertyName = prop.Name;
                     index = dataGridView1.Columns[prop.Name].Index;
@@ -264,7 +237,7 @@ namespace Bookkeeping.Views
                     .ToList()
                     .ForEach(x =>
                     {
-                        if (x.OwningColumn.Tag.ToString() == "Detail")
+                        if (x.OwningColumn.Tag.ToString() == "Details")
                         {
                             x.DataSource = DataModel.Details[dataGridView1.Rows[j].Cells[dataGridView1.Columns[x.OwningColumn.Tag.ToString()].Index - 1].Value.ToString()];
                             x.Value = dataGridView1.Rows[j].Cells[dataGridView1.Columns[x.OwningColumn.Tag.ToString()].Index].Value;
