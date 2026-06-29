@@ -17,8 +17,8 @@
 - **架構**：MVP
 - **設計模式**：獨體模式(Singleton Pattern)
 - **記憶體洩漏問題**：
-  - 自製DebounceTime(使用在記帳及查詢按鍵，避免連續觸發造成記憶體洩漏)
-  - Image圖檔壓縮及調整大小(此專案目前為4K圖檔(約3MB)壓縮至10KB以下)
+  - 自製DebounceTime : 使用在記帳及查詢按鍵，避免連續觸發造成記憶體洩漏
+  - Image圖檔壓縮及調整大小 : 4K圖檔壓縮至10KB以下
 - **資料處理**：自製CSV Reader/Writer Library
 - **類別轉換**：Automapper
 
